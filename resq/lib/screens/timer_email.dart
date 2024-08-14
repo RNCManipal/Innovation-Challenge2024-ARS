@@ -131,7 +131,10 @@ class _TimerPageState extends State<TimerPage> {
             const SizedBox(height: 40.0),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // This takes you back to the previous page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Location()),
+                ); // This takes you back to the previous page
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,

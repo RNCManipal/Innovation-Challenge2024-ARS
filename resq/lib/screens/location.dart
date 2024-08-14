@@ -1,28 +1,28 @@
 import 'dart:async';
-
-import 'package:ResQ/screens/about.dart';
-import 'package:ResQ/screens/infopage.dart';
-import 'package:ResQ/screens/profile_page.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as l;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'addingemail.dart';
+import 'BluetoothManager.dart'; // Import the global manager
 import 'timer_email.dart'; // Import the TimerPage
+import 'addingemail.dart'; // Import the AddingEmailPage
+import 'infopage.dart'; // Import the Infare
+import 'about.dart'; // Import the AboutPage
+import 'profile_page.dart'; // Import the ProfilePage
 
 class Location extends StatefulWidget {
-  const Location({super.key});
+  const Location({Key? key}) : super(key: key);
 
   @override
-  State<Location> createState() => _HomeScreenState();
+  State<Location> createState() => _LocationState();
 }
 
-class _HomeScreenState extends State<Location> with WidgetsBindingObserver {
-  bool gpsEnabled = false;
-  bool permissionGranted = false;
+class _LocationState extends State<Location> with WidgetsBindingObserver {
+  bool gpsEnabled = true;
+  bool permissionGranted = true;
   bool isLoading = true;
   l.Location location = l.Location();
   late StreamSubscription<l.LocationData> subscription;
@@ -37,6 +37,26 @@ class _HomeScreenState extends State<Location> with WidgetsBindingObserver {
     loadLastKnownLocation().then((_) {
       checkStatus();
     });
+
+    // Start listening to Bluetooth data
+    final connection = BluetoothManager().connection;
+    if (connection != null) {
+      connection.input!.listen((Uint8List data) {
+        String incomingData = String.fromCharCodes(data).trim();
+        print('Received from Bluetooth: $incomingData');
+
+        if (incomingData == '1') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => TimerPage(
+              coordinates: lastKnownPosition,
+            )),
+          );
+        }
+      }).onDone(() {
+        print('Disconnected by remote or connection lost');
+      });
+    }
   }
 
   @override
@@ -46,8 +66,8 @@ class _HomeScreenState extends State<Location> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  @override
   void didPopNext() {
-    // Called when the current route has been popped off, and the current route shows up.
     startTracking();
   }
 
@@ -76,28 +96,10 @@ class _HomeScreenState extends State<Location> with WidgetsBindingObserver {
                         },
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final result = await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => TimerPage(
-                                coordinates: lastKnownPosition,
-                              ),
-                            ),
-                          );
-                          if (result == true) {
-                            startTracking(); // Restart tracking if coming back from TimerPage
-                          }
-                        },
-                        child: const Text('Trigger Action'),
-                      ),
-                    ),
                   ],
                 ),
                 Positioned(
-                  top: 80.0, // Adjusted to shift the icon about two lines down
+                  top: 80.0,
                   left: 16.0,
                   child: SpeedDial(
                     icon: Icons.menu,
@@ -109,15 +111,14 @@ class _HomeScreenState extends State<Location> with WidgetsBindingObserver {
                     buttonSize: const Size(56.0, 56.0),
                     visible: true,
                     closeManually: false,
-                    renderOverlay: true, // Ensure overlay is rendered
+                    renderOverlay: true,
                     overlayOpacity: 0.5,
                     overlayColor: Colors.black,
                     tooltip: 'Options',
                     heroTag: 'speed-dial-hero-tag',
                     elevation: 8.0,
                     shape: const CircleBorder(),
-                    direction: SpeedDialDirection
-                        .down, // Ensure pop-up widgets appear below the icon
+                    direction: SpeedDialDirection.down,
                     children: [
                       SpeedDialChild(
                         child: const Icon(Icons.contact_phone),

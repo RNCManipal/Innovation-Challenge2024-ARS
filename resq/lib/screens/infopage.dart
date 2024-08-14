@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'location.dart'; 
+import 'bluetooth.dart'; 
 //Correct import for HomeScreen
 
 
@@ -104,7 +104,7 @@ class _InfareState extends State<Infare> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (context) =>
-                                const Location()), // Navigate to HomeScreen
+                                BluetoothHandler(context)), // Navigate to HomeScreen
                       );
                     },
                     style: ElevatedButton.styleFrom(
