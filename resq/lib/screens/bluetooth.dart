@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart'; // Add permission_handler
-import 'location.dart'; // Import the Location class
+
 import 'BluetoothManager.dart'; // Import the global manager
+import 'location.dart'; // Import the Location class
 
 class BluetoothHandler extends StatefulWidget {
   final BuildContext context;

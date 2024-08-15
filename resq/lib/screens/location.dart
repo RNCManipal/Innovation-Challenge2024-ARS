@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as l;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'BluetoothManager.dart'; // Import the global manager
-import 'timer_email.dart'; // Import the TimerPage
+import 'about.dart'; // Import the AboutPage
 import 'addingemail.dart'; // Import the AddingEmailPage
 import 'infopage.dart'; // Import the Infare
-import 'about.dart'; // Import the AboutPage
 import 'profile_page.dart'; // Import the ProfilePage
+import 'timer_email.dart'; // Import the TimerPage
 
 class Location extends StatefulWidget {
   const Location({Key? key}) : super(key: key);
@@ -41,6 +43,7 @@ class _LocationState extends State<Location> with WidgetsBindingObserver {
     // Start listening to Bluetooth data
     final connection = BluetoothManager().connection;
     if (connection != null) {
+      connection.input = connection.input!.asBroadcastStream();
       connection.input!.listen((Uint8List data) {
         String incomingData = String.fromCharCodes(data).trim();
         print('Received from Bluetooth: $incomingData');
@@ -48,9 +51,10 @@ class _LocationState extends State<Location> with WidgetsBindingObserver {
         if (incomingData == '1') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TimerPage(
-              coordinates: lastKnownPosition,
-            )),
+            MaterialPageRoute(
+                builder: (context) => TimerPage(
+                      coordinates: lastKnownPosition,
+                    )),
           );
         }
       }).onDone(() {

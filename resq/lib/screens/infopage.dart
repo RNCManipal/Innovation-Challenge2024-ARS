@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'bluetooth.dart'; 
+
+import 'bluetooth.dart';
 //Correct import for HomeScreen
-
-
 
 class Infare extends StatefulWidget {
   const Infare({super.key});
@@ -103,8 +102,8 @@ class _InfareState extends State<Infare> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (context) =>
-                                BluetoothHandler(context)), // Navigate to HomeScreen
+                            builder: (context) => BluetoothHandler(
+                                context)), // Navigate to HomeScreen
                       );
                     },
                     style: ElevatedButton.styleFrom(

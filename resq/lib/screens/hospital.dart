@@ -7,6 +7,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
+import 'location.dart';
+
 class HOS extends StatefulWidget {
   const HOS({super.key});
 
@@ -116,7 +118,10 @@ class _HOSState extends State<HOS> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Location()),
+                );
               },
             ),
           ],
@@ -125,27 +130,38 @@ class _HOSState extends State<HOS> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Location()),
+    );
+    return false; // Prevents the default back navigation
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nearby Hospitals'),
-        centerTitle: true,
-      ),
-      body: _currentPosition == null
-          ? const Center(child: CircularProgressIndicator())
-          : GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(
-                    _currentPosition!.latitude, _currentPosition!.longitude),
-                zoom: 15.0,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Nearby Hospitals'),
+          centerTitle: true,
+        ),
+        body: _currentPosition == null
+            ? const Center(child: CircularProgressIndicator())
+            : GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                      _currentPosition!.latitude, _currentPosition!.longitude),
+                  zoom: 15.0,
+                ),
+                markers: _markers,
+                onMapCreated: (controller) {
+                  _controller = controller;
+                },
+                myLocationButtonEnabled: false, // Disable the location button
               ),
-              markers: _markers,
-              onMapCreated: (controller) {
-                _controller = controller;
-              },
-              myLocationButtonEnabled: false, // Disable the location button
-            ),
+      ),
     );
   }
 }
