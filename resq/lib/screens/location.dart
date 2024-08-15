@@ -184,8 +184,10 @@ class _LocationState extends State<Location> with WidgetsBindingObserver {
   }
 
   Future<void> checkStatus() async {
-    bool permissionGranted = await isPermissionGranted();
-    if (permissionGranted) {
+    bool locationPermissionGranted = await isLocationPermissionGranted();
+    bool bluetoothPermissionGranted = await isBluetoothPermissionGranted();
+
+    if (locationPermissionGranted && bluetoothPermissionGranted) {
       bool gpsEnabled = await isGpsEnabled();
       if (gpsEnabled) {
         startTracking();
@@ -199,27 +201,36 @@ class _LocationState extends State<Location> with WidgetsBindingObserver {
         });
       }
     } else {
-      await requestLocationPermission();
+      await requestPermissions();
     }
   }
 
-  Future<bool> isPermissionGranted() async {
+  Future<bool> isLocationPermissionGranted() async {
     return await Permission.locationWhenInUse.isGranted;
+  }
+
+  Future<bool> isBluetoothPermissionGranted() async {
+    return await Permission.bluetooth.isGranted;
+  }
+
+  Future<void> requestPermissions() async {
+    PermissionStatus locationPermissionStatus =
+        await Permission.locationWhenInUse.request();
+    PermissionStatus bluetoothPermissionStatus =
+        await Permission.bluetooth.request();
+
+    setState(() {
+      permissionGranted = locationPermissionStatus == PermissionStatus.granted &&
+          bluetoothPermissionStatus == PermissionStatus.granted;
+    });
+
+    if (permissionGranted) {
+      checkStatus();
+    }
   }
 
   Future<bool> isGpsEnabled() async {
     return await location.serviceEnabled();
-  }
-
-  Future<void> requestLocationPermission() async {
-    PermissionStatus permissionStatus =
-        await Permission.locationWhenInUse.request();
-    setState(() {
-      permissionGranted = permissionStatus == PermissionStatus.granted;
-    });
-    if (permissionGranted) {
-      checkStatus();
-    }
   }
 
   void startTracking() async {

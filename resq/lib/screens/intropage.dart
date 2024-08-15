@@ -69,17 +69,17 @@ class _IntropageState extends State<Intropage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Accident',
+                          'Res',
                           style: GoogleFonts.hammersmithOne(
-                            color: Colors.black,
+                            color: const Color.fromARGB(255, 21, 0, 255),
                             fontSize: 40.0,
                           ),
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'Detection',
+                          'Q',
                           style: GoogleFonts.hammersmithOne(
-                            color: Colors.red,
+                            color: const Color.fromARGB(255, 21, 0, 255),
                             fontSize: 40.0,
                           ),
                         ),
