@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'bluetooth.dart'; 
+//Correct import for HomeScreen
+
+
 
 class Infare extends StatefulWidget {
   const Infare({super.key});
@@ -13,7 +16,7 @@ class _InfareState extends State<Infare> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 21, 0, 255),
+      backgroundColor: const Color.fromARGB(255, 243, 155, 157),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -98,13 +101,11 @@ class _InfareState extends State<Infare> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      if (mounted) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  BluetoothHandler(context)),
-                        );
-                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                BluetoothHandler(context)), // Navigate to HomeScreen
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(

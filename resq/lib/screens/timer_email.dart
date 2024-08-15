@@ -33,26 +33,22 @@ class _TimerPageState extends State<TimerPage> {
 
   Future<void> _loadEmails() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        emergencyEmails = prefs.getStringList('emergency_emails') ?? [];
-      });
-    }
+    setState(() {
+      emergencyEmails = prefs.getStringList('emergency_emails') ?? [];
+    });
   }
 
   void startCountdown() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          if (countdown > 0) {
-            countdown--;
-          } else {
-            _timer.cancel();
-            sendEmailRequest();
-            navigateToHospitalMailPage();
-          }
-        });
-      }
+      setState(() {
+        if (countdown > 0) {
+          countdown--;
+        } else {
+          _timer.cancel();
+          sendEmailRequest();
+          navigateToHospitalMailPage();
+        }
+      });
     });
   }
 
@@ -85,12 +81,10 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   void navigateToHospitalMailPage() {
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-            builder: (context) => const HOS()), // Ensure this import is correct
-      );
-    }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+          builder: (context) => const HOS()), // Ensure this import is correct
+    );
   }
 
   @override
@@ -137,12 +131,10 @@ class _TimerPageState extends State<TimerPage> {
             const SizedBox(height: 40.0),
             ElevatedButton(
               onPressed: () {
-                if (mounted) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Location()),
-                  ); // This takes you back to the previous page
-                }
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Location()),
+                ); // This takes you back to the previous page
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
