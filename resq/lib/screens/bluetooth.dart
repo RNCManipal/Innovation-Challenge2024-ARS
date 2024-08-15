@@ -1,12 +1,8 @@
-import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart'; // Add permission_handler
 import 'location.dart'; // Import the Location class
-
 import 'BluetoothManager.dart'; // Import the global manager
-
 
 class BluetoothHandler extends StatefulWidget {
   final BuildContext context;
@@ -27,13 +23,28 @@ class _BluetoothHandlerState extends State<BluetoothHandler> {
   }
 
   Future<void> _checkPermissionsAndConnect() async {
-    PermissionStatus bluetoothStatus = await Permission.bluetoothScan.request();
-
-    if (bluetoothStatus.isGranted) {
+    // Request Bluetooth permissions for Android 12+
+    if (await _requestBluetoothPermissions()) {
       await _connectToHC05();
     } else {
       print('Bluetooth or location permissions not granted');
     }
+  }
+
+  Future<bool> _requestBluetoothPermissions() async {
+    if (await Permission.bluetoothScan.isGranted &&
+        await Permission.bluetoothConnect.isGranted &&
+        await Permission.location.isGranted) {
+      return true;
+    }
+
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.location,
+    ].request();
+
+    return statuses.values.every((status) => status.isGranted);
   }
 
   Future<void> _connectToHC05() async {
