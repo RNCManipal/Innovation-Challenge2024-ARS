@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ResQ/screens/BluetoothManager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'hospital.dart'; // Import the HOS page
 import 'location.dart'; // Import the HomeScreen
+//import 'bluetooth_manager.dart'; // Import your BluetoothManager
 
 class TimerPage extends StatefulWidget {
   final LatLng? coordinates;
@@ -23,6 +25,7 @@ class _TimerPageState extends State<TimerPage> {
   int countdown = 10;
   late Timer _timer;
   List<String> emergencyEmails = [];
+  final BluetoothManager _bluetoothManager = BluetoothManager(); // Bluetooth manager instance
 
   @override
   void initState() {
@@ -53,8 +56,7 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   Future<void> sendEmailRequest() async {
-    const url =
-        'https://ars-server-eight.vercel.app/send-email'; // works for anyone
+    const url = 'https://ars-server-eight.vercel.app/send-email'; // works for anyone
     const name = 'Ajitha';
     final coordinates = {
       'latitude': widget.coordinates?.latitude.toString(),
@@ -80,6 +82,16 @@ class _TimerPageState extends State<TimerPage> {
     }
   }
 
+  Future<void> sendCancelMessage() async {
+    if (_bluetoothManager.connection != null) {
+      _bluetoothManager.connection?.output.add(utf8.encode('cancel' + "\r\n")); // Send the cancel message
+      await _bluetoothManager.connection?.output.allSent; // Ensure message is sent
+      print('Cancel message sent to Arduino');
+    } else {
+      print('No active Bluetooth connection');
+    }
+  }
+
   void navigateToHospitalMailPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -94,7 +106,7 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -130,11 +142,15 @@ class _TimerPageState extends State<TimerPage> {
             ),
             const SizedBox(height: 40.0),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // Send cancel message to Arduino
+                await sendCancelMessage();
+
+                // Navigate back to Location page
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const Location()),
-                ); // This takes you back to the previous page
+                );
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
