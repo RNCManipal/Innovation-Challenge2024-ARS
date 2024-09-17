@@ -60,7 +60,7 @@ class _IntropageState extends State<Intropage> {
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/images/Vector.png',
+                      'assets/images/logo.jpg',
                       width: 124,
                       height: 111,
                     ),
@@ -69,20 +69,13 @@ class _IntropageState extends State<Intropage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Accident',
+                          'ResQ',
                           style: GoogleFonts.hammersmithOne(
                             color: Colors.black,
                             fontSize: 40.0,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Detection',
-                          style: GoogleFonts.hammersmithOne(
-                            color: Colors.red,
-                            fontSize: 40.0,
-                          ),
-                        ),
+                  
                       ],
                     ),
                   ],
