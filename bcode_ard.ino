@@ -9,6 +9,10 @@ bool waitingForCancel = false;           // Flag to track if waiting for cancel
 unsigned long accidentTime = 0;          // Time when the accident is detected
 const unsigned long cancelWaitTime = 10000; // 10 seconds in milliseconds
 
+// Buzzer pin and alarm time
+const int buzzerPin = 10;                 // Pin for the buzzer
+const unsigned long buzzerAlarmTime = 7000; // 10 seconds in milliseconds
+
 void setup() {
   // Start Serial communication for debugging
   Serial.begin(9600);
@@ -21,6 +25,10 @@ void setup() {
     Serial.println("Failed to initialize IMU!");
     while (1);
   }
+
+  // Initialize the buzzer pin
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(buzzerPin, LOW);  // Ensure the buzzer is off initially
 
   Serial.println("Nano 33 IoT initialized");
 }
@@ -51,6 +59,10 @@ void loop() {
     Serial1.println("1");  // Send boolean value 1 to the app
     waitingForCancel = true;
     accidentTime = millis();  // Record the time when the accident is detected
+
+    // Trigger the buzzer for 10 seconds
+    Serial.println("Buzzer alarm triggered...");
+    digitalWrite(buzzerPin, HIGH); // Turn on the buzzer
   }
 
   // If waiting for cancel, check for cancel message or timeout
@@ -61,7 +73,8 @@ void loop() {
       receivedMessage.trim(); // Remove any whitespace or newline characters
       if (receivedMessage == "cancel") {
         Serial.println("Cancellation received from app. SMS will not be sent.");
-        resetDetection();  // Reset flags after receiving cancellation
+        digitalWrite(buzzerPin, LOW); // Turn off the buzzer immediately
+        resetDetection(); // Reset flags after receiving cancellation
         return;            // Exit the loop to prevent SMS sending
       }
     }
@@ -69,7 +82,9 @@ void loop() {
     // Check if 10 seconds have passed without receiving a cancellation
     if (millis() - accidentTime >= cancelWaitTime) {
       // Time's up, send the SMS
+      delay(1000);
       sendSMSToEmergencyContacts();
+      digitalWrite(buzzerPin, LOW); // Turn off the buzzer after sending SMS
       resetDetection();  // Reset flags after sending SMS
     }
   }
@@ -110,4 +125,5 @@ void resetDetection() {
   Serial.println("Resetting accident detection flags...");
   waitingForCancel = false;  // Stop waiting for cancel
   accidentSent = false;      // Reset the accident flag so future accidents can be detected
+  digitalWrite(buzzerPin, LOW);  // Ensure the buzzer is off
 }
