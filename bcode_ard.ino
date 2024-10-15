@@ -11,6 +11,7 @@ const unsigned long cancelWaitTime = 10000; // 10 seconds in milliseconds
 
 // Buzzer pin and alarm time
 const int buzzerPin = 10;                 // Pin for the buzzer
+const int impactPin = 12;                  // Pin for the limit switch
 const unsigned long buzzerAlarmTime = 7000; // 10 seconds in milliseconds
 
 void setup() {
@@ -26,9 +27,11 @@ void setup() {
     while (1);
   }
 
-  // Initialize the buzzer pin
+  // Initialize the buzzer and impact pins
   pinMode(buzzerPin, OUTPUT);
   digitalWrite(buzzerPin, LOW);  // Ensure the buzzer is off initially
+
+  pinMode(impactPin, INPUT);
 
   Serial.println("Nano 33 IoT initialized");
 }
@@ -48,16 +51,20 @@ void loop() {
   // Calculate the magnitude of the acceleration vector
   float accelerationMagnitude = sqrt(accelerationX * accelerationX + accelerationY * accelerationY + accelerationZ * accelerationZ);
 
-  // Check if any thresholds are exceeded and accident is not yet sent
+  // Read the limit switch (impact sensor)
+  bool impactTriggered = digitalRead(impactPin) == HIGH;
+
+  // Check if any thresholds are exceeded or impact is triggered
   if ((accelerationMagnitude > accelerationThreshold || 
       abs(gyroscopeX) > gyroscopeThreshold || 
-      abs(gyroscopeY) > gyroscopeThreshold  
-      ) && !accidentSent && !waitingForCancel) {
+      abs(gyroscopeY) > gyroscopeThreshold || 
+      !impactTriggered) && !accidentSent && !waitingForCancel) {
 
     // Accident detected, send boolean 1 to app and start waiting for cancel request
     Serial.println("Accident detected. Sending 1 to app and waiting for cancel...");
     Serial1.println("1");  // Send boolean value 1 to the app
     waitingForCancel = true;
+    accidentSent = true;  // Set accidentSent to true to avoid retriggering
     accidentTime = millis();  // Record the time when the accident is detected
 
     // Trigger the buzzer for 10 seconds
